@@ -21,7 +21,6 @@ function  set(setting, value) {
    var  res =  "" ;
    db.transaction( function (tx) {
         var  rs = tx.executeSql( 'INSERT OR REPLACE INTO settings VALUES (?,?);' , [setting,value]);
-              //console.log(rs.rowsAffected)
               if  (rs.rowsAffected > 0) {
                 res =  "OK" ;
               }  else  {
@@ -53,7 +52,6 @@ function  getall() {
   var  res= "" ;
   db.transaction( function (tx) {
     var  rs = tx.executeSql( 'SELECT * FROM settings ');
-
       var data = [];
       for(var i = 0; i < rs.rows.length; i++) {
           data.push(rs.rows.item(i).value);
@@ -73,11 +71,11 @@ function  getallNum() {
  return  res
 }
  // 刪除資料
-function delet(setting){
+function delet(value){
     var  db = getDatabase();
     var  res= "" ;
     db.transaction( function (tx) {
-      var  rs = tx.executeSql( 'DELETE FROM settings WHERE setting=?;' , [setting]);
+      var  rs = tx.executeSql( 'DELETE FROM settings WHERE value=?;' , value);
         if  (rs.rowsAffected > 0) {
           res =  "OK" ;
         }  else  {
@@ -85,4 +83,19 @@ function delet(setting){
         }
    })
     return res
+}
+
+// 刪除全部資料
+function deleteall(){
+   var  db = getDatabase();
+   var  res= "" ;
+   db.transaction( function (tx) {
+     var  rs = tx.executeSql( 'DELETE FROM settings');
+       if  (rs.rowsAffected > 0) {
+         res =  "OK" ;
+       }  else  {
+         res =  "Error" ;
+       }
+  })
+   return res
 }

@@ -10,7 +10,6 @@ Window {
     width: 800
     height: 480
     property bool isPortrait: Screen.primaryOrientation === Qt.PortraitOrientation
-
     Component.onCompleted: {
             Storage.initialize();
     }
@@ -21,18 +20,24 @@ Window {
         query: "/rss/channel/item"
         XmlRole { name: "description"; query: "description/string()" }
         onStatusChanged:{
+            Storage.deleteall();
             var texting = getSubDescription(feedModel);
-            list.model =Storage.getall();
-            textView.text = "";
+            storeIntoDB(texting);
+            list.model = Storage.getall();
+            textView.text ="";
         }
      }
     function getSubDescription(x) {
         var des = x.get(1).description;
         var subDes = des.split("<BR>");
-        for(var i = 0; i < subDes.length; i++)
-            Storage.set(i,subDes[i]);
+        console.log(subDes.toString());
         return subDes;
     }
+    function storeIntoDB(subDes){
+        for(var i = 0; i < subDes.length; i++)
+            Storage.set(i,subDes[i]);
+    }
+
     function getFromDB(index){
         return Storage.get(index);
     }
@@ -41,10 +46,8 @@ Window {
         id: list
         anchors.fill: parent
         clip: isPortrait
-        delegate:
-            Text {
-            text:  modelData
-        }
+        delegate: delegate
+
     }
     Text {
         id:textView
@@ -53,23 +56,25 @@ Window {
         font.pixelSize: 14
     }
 
-
-
     Component {
-        id: footerText
-
-        Rectangle {
-            width: parent.width
-            height: parent.height
-            color: "lightgray"
-
+        id: delegate
+        Column {
+            width: 200
+            height: 50
             Text {
-                text: "RSS Feed from Yahoo News"
-                anchors.centerIn: parent
+                id:itemTtext
+                text: modelData
                 font.pixelSize: 14
             }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    list.currentIndex = index;
+                    Storage.delet(modelData)
+                    list.model =Storage.getall();
+                }
+            }
         }
-
     }
 
 }
